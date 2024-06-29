@@ -3,10 +3,12 @@ package main
 import (
 	"log"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/vishal21121/url-shortner-go/internal/database"
 	"github.com/vishal21121/url-shortner-go/internal/server"
+	"github.com/vishal21121/url-shortner-go/internal/validators"
 )
 
 func main() {
@@ -27,6 +29,7 @@ func main() {
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Validator = &validators.CustomValidator{Validator: validator.New()}
 
 	e.GET("/health", func(c echo.Context) error {
 		var jsonResponse struct {

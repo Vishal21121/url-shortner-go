@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/vishal21121/url-shortner-go/internal/types"
 	"github.com/vishal21121/url-shortner-go/internal/utils"
+	"github.com/vishal21121/url-shortner-go/internal/validators"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -21,6 +22,14 @@ func (userHandler *UserHandler) LoginUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(400, map[string]any{"success": false, "data": map[string]any{"statusCode": 400, "message": "Please provide proper fields"}})
 	}
+	if validateErr := c.Validate(body); validateErr != nil {
+		errorMessages := validators.UserLoginValidator(c, validateErr)
+		return c.JSON(422, map[string]any{
+			"message": "Validation failed",
+			"errors":  errorMessages,
+		})
+	}
+
 	var foundUser map[string]any
 	userHandler.UserCollection.FindOne(c.Request().Context(), map[string]interface{}{"email": body.Email}).Decode(&foundUser)
 
@@ -48,12 +57,26 @@ func (userHandler *UserHandler) RegisterUser(c echo.Context) error {
 		return c.JSON(400, map[string]any{"success": false, "data": map[string]any{"statusCode": 400, "message": "Please provide proper fields"}})
 	}
 
+	if validateErr := c.Validate(body); validateErr != nil {
+		errorMessages := validators.UserRegisterValidator(c, validateErr)
+		return c.JSON(422, map[string]any{
+			"message": "Validation failed",
+			"errors":  errorMessages,
+		})
+	}
+
 	// searching for the user with the provided email id in the database
 	var foundUser map[string]any
 	userHandler.UserCollection.FindOne(c.Request().Context(), bson.M{"email": body.Email}).Decode(&foundUser)
 
 	if foundUser != nil {
-		return c.JSON(401, map[string]any{"success": false, "data": map[string]any{"statusCode": 401, "message": "Please provide another email id"}})
+		return c.JSON(400, map[string]any{"success": false, "data": map[string]any{"statusCode": 400, "message": "Please provide another email id"}})
+	}
+
+	userHandler.UserCollection.FindOne(c.Request().Context(), bson.M{"username": body.Username}).Decode(&foundUser)
+
+	if foundUser != nil {
+		return c.JSON(400, map[string]any{"success": false, "data": map[string]any{"statusCode": 400, "message": "Please provide another username"}})
 	}
 
 	// generating the hashed password
