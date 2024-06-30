@@ -23,6 +23,10 @@ func main() {
 		UserCollection: client.Database("url-shortner").Collection("users"),
 	}
 
+	urlHandler := server.UrlHandler{
+		UrlCollection: client.Database("url-shortner").Collection("urls"),
+	}
+
 	e := echo.New()
 
 	// Middleware
@@ -45,5 +49,10 @@ func main() {
 	userRouter := e.Group("/api/v1/users")
 	userRouter.POST("/login", userHandler.LoginUser)
 	userRouter.POST("/register", userHandler.RegisterUser)
+
+	urlRouter := e.Group("/api/v1/urls")
+	urlRouter.POST("/create", func(c echo.Context) error {
+		return urlHandler.CreateUrl(c, &userHandler)
+	})
 	e.Logger.Fatal(e.Start(":8080"))
 }
