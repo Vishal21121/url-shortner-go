@@ -43,6 +43,7 @@ func (collection *UrlHandler) CreateUrl(c echo.Context, userCollection *UserHand
 				"statusCode": 400,
 				"message":    "User does not exist with the provided userId",
 			},
+			"success": false,
 		})
 	}
 
@@ -55,6 +56,7 @@ func (collection *UrlHandler) CreateUrl(c echo.Context, userCollection *UserHand
 				"statusCode": 400,
 				"message":    "Please enter another aliase",
 			},
+			"success": false,
 		})
 	}
 
@@ -65,6 +67,7 @@ func (collection *UrlHandler) CreateUrl(c echo.Context, userCollection *UserHand
 				"statusCode": 400,
 				"message":    "Internal server error",
 			},
+			"success": false,
 		})
 	}
 
@@ -76,5 +79,62 @@ func (collection *UrlHandler) CreateUrl(c echo.Context, userCollection *UserHand
 			"statusCode": 201,
 			"data":       insertedUrl,
 		},
+		"success": true,
+	})
+}
+
+func (collection *UrlHandler) FetchAllUrls(c echo.Context, userCollection *UserHandler) error {
+	userId := c.QueryParam("userId")
+	mongoUserId, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return c.JSON(500, map[string]any{
+			"data": map[string]any{
+				"statusCode": 500,
+				"message":    "Internal server error",
+			},
+			"success": false,
+		})
+	}
+
+	var userFound bson.M
+	userCollection.UserCollection.FindOne(c.Request().Context(), bson.M{"_id": mongoUserId}).Decode(&userFound)
+	if userFound == nil {
+		return c.JSON(400, map[string]any{
+			"data": map[string]any{
+				"statusCode": 400,
+				"message":    "User does not exist with the provided User id",
+			},
+			"success": false,
+		})
+	}
+	cursor, findErr := collection.UrlCollection.Find(c.Request().Context(), bson.M{"userId": mongoUserId})
+	if findErr != nil {
+		fmt.Println("error in finding the urls")
+		return c.JSON(500, map[string]any{
+			"data": map[string]any{
+				"statusCode": 500,
+				"message":    "Internal server error",
+			},
+			"success": false,
+		})
+	}
+
+	var urls []bson.M
+	if err := cursor.All(c.Request().Context(), &urls); err != nil {
+		fmt.Println("error in decoding the urls")
+		return c.JSON(500, map[string]any{
+			"data": map[string]any{
+				"statusCode": 500,
+				"message":    "Internal server error",
+			},
+			"success": false,
+		})
+	}
+	return c.JSON(200, map[string]any{
+		"data": map[string]any{
+			"statusCode": 200,
+			"data":       urls,
+		},
+		"success": true,
 	})
 }
