@@ -3,18 +3,19 @@ import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import Sigin from "./pages/Signin";
 import NotFound from "./pages/NotFounc";
+import LinkCreation from "./pages/UserLinks";
 
 function App() {
   return (
     <Routes>
-      {/* <Route
+      <Route
         path="/"
         element={
           <PrivateRoute>
-            <Home />
+            <LinkCreation />
           </PrivateRoute>
         }
-      /> */}
+      />
       <Route
         path="/signin"
         element={

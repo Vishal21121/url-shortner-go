@@ -70,13 +70,13 @@ func (userHandler *UserHandler) RegisterUser(c echo.Context) error {
 	userHandler.UserCollection.FindOne(c.Request().Context(), bson.M{"email": body.Email}).Decode(&foundUser)
 
 	if foundUser != nil {
-		return c.JSON(400, map[string]any{"success": false, "data": map[string]any{"statusCode": 400, "message": "Please provide another email id"}})
+		return c.JSON(409, map[string]any{"success": false, "data": map[string]any{"statusCode": 409, "message": "Please provide another email id"}})
 	}
 
 	userHandler.UserCollection.FindOne(c.Request().Context(), bson.M{"username": body.Username}).Decode(&foundUser)
 
 	if foundUser != nil {
-		return c.JSON(400, map[string]any{"success": false, "data": map[string]any{"statusCode": 400, "message": "Please provide another username"}})
+		return c.JSON(409, map[string]any{"success": false, "data": map[string]any{"statusCode": 409, "message": "Please provide another username"}})
 	}
 
 	// generating the hashed password

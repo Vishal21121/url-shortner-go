@@ -18,51 +18,44 @@ import z from "zod";
 import { Loader2 } from "lucide-react";
 
 const Sigin = () => {
-  const { login } = useUserContext();
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, registerUser, isLoginLoading, isRegisterLoading } =
+    useUserContext();
 
-  const googleSignin = async () => {
-    try {
-      window.open(
-        `${import.meta.env.VITE_SERVER_URI}/api/v1/users/google`,
-        "_self"
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const githubSignin = async () => {
-    try {
-      window.open(
-        `${import.meta.env.VITE_SERVER_URI}/api/v1/users/github`,
-        "_self"
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const formSchema = z.object({
+  const loginFormSchema = z.object({
     email: z
       .string({ required_error: "Please provide email" })
       .email(2, { message: "Please enter proper email id" }),
     password: z.string({ required_error: "Please provide password" }),
   });
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-    },
+  const loginForm = useForm({
+    resolver: zodResolver(loginFormSchema),
   });
 
-  function onSubmit(values) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    setIsLoading(true);
+  const signupFormSchema = z.object({
+    username: z
+      .string({ required_error: "Username is required" })
+      .min(3, { message: "Username should be within 3 to 8 characters" })
+      .max(8, { message: "Username should be within 3 to 8 characters" }),
+    email: z
+      .string({ required_error: "Please provide email id" })
+      .email({ message: "Please provide proper email id" }),
+    password: z
+      .string({ required_error: "Please provide password" })
+      .min(8, { message: "Password should be within 8 to 13 characters" })
+      .max(13, { message: "Password should be within 8 to 13 characters" }),
+  });
+
+  const signupForm = useForm({
+    resolver: zodResolver(signupFormSchema),
+  });
+
+  function handleLoginSubmit(values) {
     login(values);
-    console.log(values);
+  }
+
+  function handleRegisterSubmit(values) {
+    registerUser(values);
   }
 
   return (
@@ -75,7 +68,7 @@ const Sigin = () => {
           <TabsTrigger value="login" className="w-1/2">
             Login
           </TabsTrigger>
-          <TabsTrigger value="password" className="w-1/2">
+          <TabsTrigger value="signup" className="w-1/2">
             Signup
           </TabsTrigger>
         </TabsList>
@@ -86,10 +79,13 @@ const Sigin = () => {
               to your account if you already have one
             </p>
           </div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Form {...loginForm}>
+            <form
+              onSubmit={loginForm.handleSubmit(handleLoginSubmit)}
+              className="space-y-4"
+            >
               <FormField
-                control={form.control}
+                control={loginForm.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -102,7 +98,7 @@ const Sigin = () => {
                 )}
               />
               <FormField
-                control={form.control}
+                control={loginForm.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -114,21 +110,31 @@ const Sigin = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit</Button>
+              {isLoginLoading ? (
+                <Button disabled>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </Button>
+              ) : (
+                <Button type="submit">Submit</Button>
+              )}
             </form>
           </Form>
         </TabsContent>
-        <TabsContent value="password" className="p-2">
+        <TabsContent value="signup" className="p-2">
           <div className="flex flex-col mb-4">
             <p className="text-3xl font-bold">Signup</p>
             <p className="text-base text-gray-500">
               Create an account if you haven't already
             </p>
           </div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Form {...signupForm}>
+            <form
+              onSubmit={signupForm.handleSubmit(handleRegisterSubmit)}
+              className="space-y-4"
+            >
               <FormField
-                control={form.control}
+                control={signupForm.control}
                 name="username"
                 render={({ field }) => (
                   <FormItem>
@@ -141,7 +147,7 @@ const Sigin = () => {
                 )}
               />
               <FormField
-                control={form.control}
+                control={signupForm.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -154,7 +160,7 @@ const Sigin = () => {
                 )}
               />
               <FormField
-                control={form.control}
+                control={signupForm.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -166,7 +172,7 @@ const Sigin = () => {
                   </FormItem>
                 )}
               />
-              {isLoading ? (
+              {isRegisterLoading ? (
                 <Button disabled>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Please wait

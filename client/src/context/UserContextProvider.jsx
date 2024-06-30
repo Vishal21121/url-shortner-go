@@ -9,8 +9,11 @@ const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoggedin, setIsLoggedin] = useState(false);
   const { getItem, setItem, deleteItem } = useLocalStorage();
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [isRegisterLoading, setIsRegisterLoading] = useState(false);
 
   const registerUser = async (userData) => {
+    setIsRegisterLoading(true);
     if (userData.email === "") {
       toast.error("Please provide email", {
         style: {
@@ -53,7 +56,7 @@ const UserContextProvider = ({ children }) => {
         }
       );
       const data = await response.json();
-      if (data.statusCode === 201) {
+      if (data.data.statusCode === 201) {
         toast.dismiss();
         toast.success("User account created successfully", {
           style: {
@@ -62,19 +65,19 @@ const UserContextProvider = ({ children }) => {
             color: "#fff",
           },
         });
-        setUser(data);
-        setItem("user", data);
+        setUser(data.data);
+        setItem("user", data.data);
         navigate("/");
-      } else if (data.statusCode === 409) {
-        toast.error(data.message, {
+      } else if (data.data.statusCode === 409) {
+        toast.error(data.data.message, {
           style: {
             borderRadius: "10px",
             background: "#333",
             color: "#fff",
           },
         });
-      } else if (data.statusCode === 422) {
-        let firsElement = data.errors[0];
+      } else if (data.data.statusCode === 422) {
+        let firsElement = data.data.errors[0];
         let message = "";
         if ("username" in firsElement) {
           message = firsElement["username"];
@@ -94,9 +97,11 @@ const UserContextProvider = ({ children }) => {
     } catch (error) {
       console.log(error.message);
     }
+    setIsRegisterLoading(false);
   };
 
   const login = async (userData) => {
+    setIsLoginLoading(true);
     if (userData.email === "") {
       toast.error("Please provide email", {
         style: {
@@ -170,6 +175,7 @@ const UserContextProvider = ({ children }) => {
     } catch (error) {
       console.log(error.message);
     }
+    setIsLoginLoading(false);
   };
 
   const logOut = async () => {
@@ -231,7 +237,16 @@ const UserContextProvider = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ registerUser, login, user, logOut, isLoggedin, setIsLoggedin }}
+      value={{
+        registerUser,
+        login,
+        user,
+        logOut,
+        isLoggedin,
+        setIsLoggedin,
+        isLoginLoading,
+        isRegisterLoading,
+      }}
     >
       {children}
     </UserContext.Provider>
