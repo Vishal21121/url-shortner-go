@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { UserContext } from "./userContext";
 
 const UserContextProvider = ({ children }) => {
@@ -12,19 +12,37 @@ const UserContextProvider = ({ children }) => {
 
   const registerUser = async (userData) => {
     if (userData.email === "") {
-      toast.error("Please provide email");
+      toast.error("Please provide email", {
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
       return;
     }
     if (userData.password === "") {
-      toast.error("Please provide password");
+      toast.error("Please provide password", {
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
       return;
     }
     if (userData.username === "") {
-      toast.error("Please provide username");
+      toast.error("Please provide username", {
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
     }
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URI}/api/v1/users/createAccount`,
+        `${import.meta.env.VITE_SERVER_URI}/api/v1/users/register`,
         {
           method: "POST",
           mode: "cors",
@@ -37,13 +55,24 @@ const UserContextProvider = ({ children }) => {
       const data = await response.json();
       if (data.statusCode === 201) {
         toast.dismiss();
-        toast.success("User account created successfully");
-        console.log(data);
+        toast.success("User account created successfully", {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        });
         setUser(data);
         setItem("user", data);
         navigate("/");
       } else if (data.statusCode === 409) {
-        toast.error(data.message);
+        toast.error(data.message, {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        });
       } else if (data.statusCode === 422) {
         let firsElement = data.errors[0];
         let message = "";
@@ -54,7 +83,13 @@ const UserContextProvider = ({ children }) => {
         } else if ("password" in firsElement) {
           message = firsElement["password"];
         }
-        toast.error(message);
+        toast.error(message, {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        });
       }
     } catch (error) {
       console.log(error.message);
@@ -63,11 +98,23 @@ const UserContextProvider = ({ children }) => {
 
   const login = async (userData) => {
     if (userData.email === "") {
-      toast.error("Please provide email");
+      toast.error("Please provide email", {
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
       return;
     }
     if (userData.password === "") {
-      toast.error("Please provide password");
+      toast.error("Please provide password", {
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
       return;
     }
     try {
@@ -83,15 +130,28 @@ const UserContextProvider = ({ children }) => {
         }
       );
       const data = await response.json();
-      if (data.statusCode === 200) {
+      console.log(data);
+      if (data.data.statusCode === 200) {
         toast.dismiss();
-        toast.success("User logged in successfully");
+        toast.success("User logged in successfully", {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        });
         setUser(data);
         setItem("user", data);
         navigate("/");
-      } else if (data.statusCode === 401) {
-        toast.error(data.data.message);
-      } else if (data.statusCode === 422) {
+      } else if (data.data.statusCode === 401) {
+        toast.error(data.data.message, {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        });
+      } else if (data.data.statusCode === 422) {
         let firsElement = data.errors[0];
         let message = "";
         if ("email" in firsElement) {
@@ -99,7 +159,13 @@ const UserContextProvider = ({ children }) => {
         } else if ("password" in firsElement) {
           message = firsElement["password"];
         }
-        toast.error(message);
+        toast.error(message, {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        });
       }
     } catch (error) {
       console.log(error.message);
@@ -118,7 +184,13 @@ const UserContextProvider = ({ children }) => {
       if (data.statusCode === 200) {
         deleteItem("user");
         setUser(null);
-        toast.success("log out successfully");
+        toast.success("log out successfully", {
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        });
       }
     } catch (error) {
       console.log(error);

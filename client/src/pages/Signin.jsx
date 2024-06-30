@@ -15,13 +15,11 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { Loader2 } from "lucide-react";
 
 const Sigin = () => {
-  const [userData, setUserData] = useState({
-    email: "",
-    password: "",
-  });
   const { login } = useUserContext();
+  const [isLoading, setIsLoading] = useState(false);
 
   const googleSignin = async () => {
     try {
@@ -46,10 +44,10 @@ const Sigin = () => {
   };
 
   const formSchema = z.object({
-    email: z.string().email(2, { message: "Please enter proper email id" }),
-    password: z
-      .string()
-      .min(8, { message: "Password should be of minimum 8 characters" }),
+    email: z
+      .string({ required_error: "Please provide email" })
+      .email(2, { message: "Please enter proper email id" }),
+    password: z.string({ required_error: "Please provide password" }),
   });
 
   const form = useForm({
@@ -62,6 +60,8 @@ const Sigin = () => {
   function onSubmit(values) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    setIsLoading(true);
+    login(values);
     console.log(values);
   }
 
@@ -166,7 +166,16 @@ const Sigin = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit</Button>
+              {isLoading ? (
+                <Button disabled>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </Button>
+              ) : (
+                <Button type="submit" isLoading>
+                  Submit
+                </Button>
+              )}
             </form>
           </Form>
         </TabsContent>
