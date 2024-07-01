@@ -10,14 +10,12 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { DialogClose } from "@radix-ui/react-dialog";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -89,7 +87,7 @@ function UserLinks() {
         </div>
         <div className="w-1/2 p-4 border rounded-lg">
           <p className="text-xl">Total Clicks</p>
-          <p className="text-lg">1</p>
+          <p className="text-lg">0</p>
         </div>
       </div>
       <div className="flex flex-col gap-4 mt-8">

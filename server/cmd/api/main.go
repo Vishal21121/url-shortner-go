@@ -84,7 +84,7 @@ func main() {
 		}
 		// update the count
 		var url types.Url
-		urlHandler.UrlCollection.FindOneAndUpdate(c.Request().Context(), bson.M{"aliase": alias}, bson.M{"$inc": bson.M{"count": 1}}, options.FindOneAndUpdate().SetReturnDocument(options.After)).Decode(&url)
+		urlHandler.UrlCollection.FindOneAndUpdate(c.Request().Context(), bson.M{"aliase": alias}, bson.M{"$inc": bson.M{"clicked": 1}}, options.FindOneAndUpdate().SetReturnDocument(options.After)).Decode(&url)
 
 		fmt.Println("url", url)
 

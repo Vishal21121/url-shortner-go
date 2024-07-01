@@ -51,9 +51,9 @@ func (collection *UrlHandler) CreateUrl(c echo.Context, userCollection *UserHand
 	collection.UrlCollection.FindOne(c.Request().Context(), bson.M{"aliase": body.Aliase}).Decode(&urlFound)
 
 	if urlFound != nil {
-		return c.JSON(400, map[string]any{
+		return c.JSON(409, map[string]any{
 			"data": map[string]any{
-				"statusCode": 400,
+				"statusCode": 409,
 				"message":    "Please enter another aliase",
 			},
 			"success": false,
@@ -62,9 +62,9 @@ func (collection *UrlHandler) CreateUrl(c echo.Context, userCollection *UserHand
 
 	result, insertionErr := collection.UrlCollection.InsertOne(c.Request().Context(), bson.M{"aliase": body.Aliase, "redirectUrl": body.RedirectUrl, "clicked": 0, "userId": userId, "shortUrl": fmt.Sprintf("http://localhost:8080/%s", body.Aliase), "createdAt": time.Now()})
 	if insertionErr != nil {
-		return c.JSON(400, map[string]any{
+		return c.JSON(500, map[string]any{
 			"data": map[string]any{
-				"statusCode": 400,
+				"statusCode": 500,
 				"message":    "Internal server error",
 			},
 			"success": false,

@@ -35,7 +35,8 @@ function UrlContextProvider({ children }) {
       const data = await response.json();
       if (data.data.statusCode === 201) {
         console.log(data.data);
-        setUrls([...urls, data.data.data]);
+        let availableUrls = urls ? [...urls, data.data.data] : [data.data.data];
+        setUrls(availableUrls);
         toast.success("Url created successfully", {
           style: {
             borderRadius: "10px",
