@@ -3,7 +3,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import Sigin from "./pages/Signin";
 import NotFound from "./pages/NotFounc";
-import LinkCreation from "./pages/UserLinks";
+import LinkPage from "./pages/LinkPage";
+import UserLinks from "./pages/UserLinks";
 
 function App() {
   return (
@@ -12,7 +13,7 @@ function App() {
         path="/"
         element={
           <PrivateRoute>
-            <LinkCreation />
+            <UserLinks />
           </PrivateRoute>
         }
       />
