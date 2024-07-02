@@ -1,4 +1,4 @@
-import { CloudFog, Copy, Link } from "lucide-react";
+import { CloudFog, Copy, Link as LinkUrl } from "lucide-react";
 import React from "react";
 import QRCode from "react-qr-code";
 import {
@@ -7,8 +7,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Link } from "react-router-dom";
 
-function UrlCard({ aliase, redirectUrl, shortUrl, createdAt }) {
+function UrlCard({ aliase, redirectUrl, shortUrl, createdAt, id }) {
   const date = new Date(createdAt);
   const options = {
     year: "numeric",
@@ -31,10 +32,12 @@ function UrlCard({ aliase, redirectUrl, shortUrl, createdAt }) {
           />
         </div>
         <div>
-          <p className="text-3xl font-bold">{aliase}</p>
+          <Link to={`/${id}`} className="text-3xl font-bold">
+            {aliase}
+          </Link>
           <p className="text-lg text-blue-400">{shortUrl}</p>
           <div className="flex gap-1">
-            <Link className="w-4" />
+            <LinkUrl className="w-4" />
             <p>{redirectUrl}</p>
           </div>
           <p>{formattedDate}</p>

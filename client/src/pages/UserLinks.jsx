@@ -156,6 +156,7 @@ function UserLinks() {
           (localUrls ? localUrls : urls).map(
             ({ _id, aliase, redirectUrl, shortUrl, createdAt }) => (
               <UrlCard
+                id={_id}
                 key={_id}
                 aliase={aliase}
                 redirectUrl={redirectUrl}

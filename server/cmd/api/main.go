@@ -13,7 +13,6 @@ import (
 	"github.com/vishal21121/url-shortner-go/internal/utils"
 	"github.com/vishal21121/url-shortner-go/internal/validators"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -33,10 +32,7 @@ func main() {
 		UrlCollection: client.Database("url-shortner").Collection("urls"),
 	}
 
-	type ClickHandler struct {
-		ClickCollection *mongo.Collection
-	}
-	clickHandler := ClickHandler{ClickCollection: client.Database("url-shortner").Collection("click")}
+	clickHandler := server.ClickHandler{ClickCollection: client.Database("url-shortner").Collection("click")}
 
 	e := echo.New()
 
@@ -59,6 +55,21 @@ func main() {
 
 	e.GET("/:alias", func(c echo.Context) error {
 		alias := c.Param("alias")
+		fmt.Println(alias)
+
+		var urlFound bson.M
+		urlHandler.UrlCollection.FindOne(c.Request().Context(), bson.M{"aliase": alias}).Decode(&urlFound)
+
+		if urlFound == nil {
+			return c.JSON(404, map[string]any{
+				"success": false,
+				"data": map[string]any{
+					"statusCode": 404,
+					"message":    "No url found with the provided aliase",
+				},
+			})
+		}
+
 		ipAddress := c.RealIP()
 		location, err := utils.GetLocation(ipAddress)
 		if err != nil {
@@ -103,5 +114,9 @@ func main() {
 	urlRouter.GET("/get", func(c echo.Context) error {
 		return urlHandler.FetchAllUrls(c, &userHandler)
 	})
+
+	clickRouter := e.Group("/api/v1/click")
+	clickRouter.GET("/get", clickHandler.GetAllClicks)
+
 	e.Logger.Fatal(e.Start(":8080"))
 }

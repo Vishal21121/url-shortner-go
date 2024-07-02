@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { UrlContext } from "./urlContext";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "./userContext";
 
 function UrlContextProvider({ children }) {
   const [urls, setUrls] = useState(null);
+  const navigate = useNavigate();
 
   const fetchUrls = async (userId) => {
     try {
@@ -44,6 +47,7 @@ function UrlContextProvider({ children }) {
             color: "#fff",
           },
         });
+        navigate(`/${data.data.data._id}`);
       } else if (data.data.statusCode === 409) {
         toast.error("Please enter another aliase", {
           style: {

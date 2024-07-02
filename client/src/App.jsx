@@ -5,6 +5,7 @@ import Sigin from "./pages/Signin";
 import NotFound from "./pages/NotFounc";
 import LinkPage from "./pages/LinkPage";
 import UserLinks from "./pages/UserLinks";
+import LineGraph from "./components/LineGraph";
 
 function App() {
   return (
@@ -18,6 +19,14 @@ function App() {
         }
       />
       <Route
+        path="/:urlId"
+        element={
+          <PrivateRoute>
+            <LinkPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
         path="/signin"
         element={
           <PublicRoute>
@@ -25,14 +34,22 @@ function App() {
           </PublicRoute>
         }
       />
-      {/* <Route
-        path="/signup"
+      <Route
+        path="/charts"
         element={
           <PublicRoute>
-            <Signup />
+            <LineGraph />
           </PublicRoute>
         }
-      /> */}
+      />
+      <Route
+        path="/graph"
+        element={
+          <PublicRoute>
+            <LinkPage />
+          </PublicRoute>
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
