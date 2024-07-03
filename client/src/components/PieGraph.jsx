@@ -24,7 +24,7 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function PieGraph({ data }) {
   return (
-    <div className="w-1/2 h-72 mt-8">
+    <div className="w-3/4 h-72 mt-8">
       <ResponsiveContainer>
         <PieChart width={700} height={400}>
           <Pie

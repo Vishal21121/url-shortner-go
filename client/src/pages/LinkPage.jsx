@@ -17,6 +17,8 @@ import { useUrlContext } from "@/context/urlContext";
 import QRCode from "react-qr-code";
 import LineGraph from "@/components/LineGraph";
 import PieGraph from "@/components/PieGraph";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+import { useUserContext } from "@/context/userContext";
 
 function LinkPage() {
   const { urlId } = useParams();
@@ -27,10 +29,10 @@ function LinkPage() {
   const [lineChartData, setLineChartData] = useState(null);
   const [barChartData, setBarChartData] = useState(null);
   const [clicksCount, setClicksCount] = useState(0);
+  const { logOut } = useUserContext();
   const navigate = useNavigate();
 
   function findUrl(urlId) {
-    console.log("urlId", urlId);
     let foundUrl = urls?.find((el) => el._id === urlId);
     setUrl(foundUrl);
     const date = new Date(foundUrl?.createdAt);
@@ -111,26 +113,25 @@ function LinkPage() {
                 User
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup>
-                <DropdownMenuRadioItem
-                  value="top"
-                  className="cursor-pointer"
+              <DropdownMenuRadioGroup className="flex flex-col gap-y-2 items-center">
+                <DropdownMenuItem
+                  className="cursor-pointer hover:bg-gray-800 w-full"
                   onClick={() => navigate("/")}
                 >
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center justify-center">
                     <Link className="w-4" />
                     <p className=""> My links</p>
                   </div>
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem
-                  value="bottom"
-                  className="cursor-pointer"
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer w-full hover:bg-gray-800"
+                  onClick={() => logOut()}
                 >
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center justify-center">
                     <LogOut className="w-4 text-red-500" />
                     <p className="text-red-500">Logout</p>
                   </div>
-                </DropdownMenuRadioItem>
+                </DropdownMenuItem>
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -159,18 +160,18 @@ function LinkPage() {
               />
             </div>
           </div>
-          <div className="flex flex-col w-full gap-8 ">
-            <p className="text-4xl font-bold">Stats</p>
-            <div className="flex flex-col justify-center gap-4">
+          <div className="flex flex-col w-full gap-8 items-center">
+            <p className="text-4xl font-bold w-full  pl-4">Stats</p>
+            <div className="flex flex-col justify-center gap-4 w-full pl-4">
               <p className="text-3xl font-semibold">Total Clicks</p>
               <p className="text-2xl font-bold ml-8">{clicksCount}</p>
             </div>
-            <div>
-              <p className="text-4xl font-semibold">Location Data</p>
+            <div className="w-full p-4">
+              <p className="text-4xl font-semibold w-full">Location Data</p>
               <LineGraph data={lineChartData} />
             </div>
-            <div>
-              <p className="text-4xl font-semibold">Device Data</p>
+            <div className="w-full p-4">
+              <p className="text-4xl font-semibold w-full">Device Data</p>
               <PieGraph data={barChartData} />
             </div>
           </div>

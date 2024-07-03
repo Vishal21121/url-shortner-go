@@ -179,55 +179,26 @@ const UserContextProvider = ({ children }) => {
   };
 
   const logOut = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URI}/api/v1/users/logout`,
-        {
-          credentials: "include",
-        }
-      );
-      const data = await response.json();
-      if (data.statusCode === 200) {
-        deleteItem("user");
-        setUser(null);
-        toast.success("log out successfully", {
-          style: {
-            borderRadius: "10px",
-            background: "#333",
-            color: "#fff",
-          },
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    deleteItem("user");
+    setUser(null);
+    toast.success("log out successfully", {
+      style: {
+        borderRadius: "10px",
+        background: "#333",
+        color: "#fff",
+      },
+    });
+    navigate("/sigin");
   };
 
-  const fetchUserDetails = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URI}/api/v1/users/user-details`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Access-Control-Allow-Credentials": true,
-          },
-        }
-      );
-      const data = await response.json();
-      if (data.statusCode === 200) {
-        setUser(data);
-        setItem("user", data);
-        navigate("/");
-        // toast.success("Logged in successfully")
-        setIsLoggedin(true);
-      } else if (data.statusCode === 401) {
-        const data = getItem("user");
-        setUser(data);
-      }
-    } catch (error) {
-      console.log(error);
+  const fetchUserDetails = () => {
+    const userData = getItem("user");
+    console.log("userData", userData);
+    if (userData) {
+      setUser(userData);
+      navigate("/");
+    } else {
+      navigate("/sigin");
     }
   };
 

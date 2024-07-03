@@ -13,7 +13,7 @@ export default function LineGraph({ data }) {
   return (
     <>
       {data && data.length > 0 ? (
-        <div className="w-1/2 h-72 mt-8">
+        <div className="w-3/4 h-72 mt-8 border">
           <ResponsiveContainer>
             <LineChart width={700} height={300} data={data}>
               <XAxis dataKey="city" />
