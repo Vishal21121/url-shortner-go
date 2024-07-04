@@ -16,6 +16,10 @@ type UserHandler struct {
 	UserCollection *mongo.Collection
 }
 
+func NewUserCollection(collection *mongo.Collection) *UserHandler {
+	return &UserHandler{UserCollection: collection}
+}
+
 func (userHandler *UserHandler) LoginUser(c echo.Context) error {
 	body := types.LoginUserStruct{}
 	err := c.Bind(&body)

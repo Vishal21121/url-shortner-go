@@ -24,15 +24,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	userHandler := server.UserHandler{
-		UserCollection: client.Database("url-shortner").Collection("users"),
-	}
+	database := client.Database("url-shortner")
+	userCollection := database.Collection("users")
+	urlCollection := database.Collection("urls")
+	clickCollection := database.Collection("click")
 
-	urlHandler := server.UrlHandler{
-		UrlCollection: client.Database("url-shortner").Collection("urls"),
-	}
-
-	clickHandler := server.ClickHandler{ClickCollection: client.Database("url-shortner").Collection("click")}
+	userHandler := server.NewUserCollection(userCollection)
+	urlHandler := server.NewUrlCollection(urlCollection)
+	clickHandler := server.NewClickCollection(clickCollection)
 
 	e := echo.New()
 
@@ -109,10 +108,10 @@ func main() {
 
 	urlRouter := e.Group("/api/v1/urls")
 	urlRouter.POST("/create", func(c echo.Context) error {
-		return urlHandler.CreateUrl(c, &userHandler)
+		return urlHandler.CreateUrl(c, userHandler)
 	})
 	urlRouter.GET("/get", func(c echo.Context) error {
-		return urlHandler.FetchAllUrls(c, &userHandler)
+		return urlHandler.FetchAllUrls(c, userHandler)
 	})
 
 	clickRouter := e.Group("/api/v1/click")

@@ -12,6 +12,10 @@ type ClickHandler struct {
 	ClickCollection *mongo.Collection
 }
 
+func NewClickCollection(collection *mongo.Collection) *ClickHandler {
+	return &ClickHandler{ClickCollection: collection}
+}
+
 func (collection *ClickHandler) GetAllClicks(c echo.Context) error {
 	fmt.Println("got request")
 	aliase := c.QueryParam("aliase")

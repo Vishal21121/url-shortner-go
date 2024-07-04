@@ -16,6 +16,10 @@ type UrlHandler struct {
 	UrlCollection *mongo.Collection
 }
 
+func NewUrlCollection(collection *mongo.Collection) *UrlHandler {
+	return &UrlHandler{UrlCollection: collection}
+}
+
 func (collection *UrlHandler) CreateUrl(c echo.Context, userCollection *UserHandler) error {
 	var body types.UrlCreate
 	bindErr := c.Bind(&body)
