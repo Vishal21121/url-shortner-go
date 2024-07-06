@@ -24,17 +24,11 @@ func (collection *UrlHandler) CreateUrl(c echo.Context, userCollection *UserHand
 	var body types.UrlCreate
 	bindErr := c.Bind(&body)
 	if bindErr != nil {
-		return c.JSON(400, map[string]any{"success": false, "data": map[string]any{"statusCode": 400, "message": bindErr.Error()}})
+		return types.ThrowError(400, bindErr.Error(), []string{})
 	}
 	if bodyValidationErr := c.Validate(body); bodyValidationErr != nil {
 		errorMessages := validators.CreateUrlValidator(c, bodyValidationErr)
-		return c.JSON(422, map[string]any{
-			"data": map[string]any{
-				"statusCode": 422,
-				"error":      errorMessages,
-			},
-			"success": false,
-		})
+		return types.ThrowError(422, "Validation Error", errorMessages)
 	}
 	userId, _ := primitive.ObjectIDFromHex(body.UserId)
 
@@ -42,37 +36,19 @@ func (collection *UrlHandler) CreateUrl(c echo.Context, userCollection *UserHand
 	userCollection.UserCollection.FindOne(c.Request().Context(), bson.M{"_id": userId}).Decode(&foundUser)
 
 	if foundUser == nil {
-		return c.JSON(400, map[string]any{
-			"data": map[string]any{
-				"statusCode": 400,
-				"message":    "User does not exist with the provided userId",
-			},
-			"success": false,
-		})
+		return types.ThrowError(404, "User does not exist with the provided userId", []string{})
 	}
 
 	var urlFound bson.M
 	collection.UrlCollection.FindOne(c.Request().Context(), bson.M{"aliase": body.Aliase}).Decode(&urlFound)
 
 	if urlFound != nil {
-		return c.JSON(409, map[string]any{
-			"data": map[string]any{
-				"statusCode": 409,
-				"message":    "Please enter another aliase",
-			},
-			"success": false,
-		})
+		return types.ThrowError(409, "Please enter another aliase", []string{})
 	}
 
 	result, insertionErr := collection.UrlCollection.InsertOne(c.Request().Context(), bson.M{"aliase": body.Aliase, "redirectUrl": body.RedirectUrl, "clicked": 0, "userId": userId, "shortUrl": fmt.Sprintf("http://localhost:8080/%s", body.Aliase), "createdAt": time.Now()})
 	if insertionErr != nil {
-		return c.JSON(500, map[string]any{
-			"data": map[string]any{
-				"statusCode": 500,
-				"message":    "Internal server error",
-			},
-			"success": false,
-		})
+		return types.ThrowError(500, "Internal server error", []string{})
 	}
 
 	var insertedUrl bson.M
@@ -91,48 +67,24 @@ func (collection *UrlHandler) FetchAllUrls(c echo.Context, userCollection *UserH
 	userId := c.QueryParam("userId")
 	mongoUserId, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
-		return c.JSON(500, map[string]any{
-			"data": map[string]any{
-				"statusCode": 500,
-				"message":    "Internal server error",
-			},
-			"success": false,
-		})
+		return types.ThrowError(500, "Internal server error", []string{})
 	}
 
 	var userFound bson.M
 	userCollection.UserCollection.FindOne(c.Request().Context(), bson.M{"_id": mongoUserId}).Decode(&userFound)
 	if userFound == nil {
-		return c.JSON(400, map[string]any{
-			"data": map[string]any{
-				"statusCode": 400,
-				"message":    "User does not exist with the provided User id",
-			},
-			"success": false,
-		})
+		return types.ThrowError(400, "User does not exist with the provided User id", []string{})
 	}
 	cursor, findErr := collection.UrlCollection.Find(c.Request().Context(), bson.M{"userId": mongoUserId})
 	if findErr != nil {
 		fmt.Println("error in finding the urls")
-		return c.JSON(500, map[string]any{
-			"data": map[string]any{
-				"statusCode": 500,
-				"message":    "Internal server error",
-			},
-			"success": false,
-		})
+		return types.ThrowError(500, findErr.Error(), []string{})
 	}
 
 	var urls []bson.M
 	if err := cursor.All(c.Request().Context(), &urls); err != nil {
 		fmt.Println("error in decoding the urls")
-		return c.JSON(500, map[string]any{
-			"data": map[string]any{
-				"statusCode": 500,
-				"message":    "Internal server error",
-			},
-			"success": false,
-		})
+		return types.ThrowError(500, err.Error(), []string{})
 	}
 	return c.JSON(200, map[string]any{
 		"data": map[string]any{

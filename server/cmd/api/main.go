@@ -63,37 +63,19 @@ func main() {
 		urlHandler.UrlCollection.FindOne(c.Request().Context(), bson.M{"aliase": alias}).Decode(&urlFound)
 
 		if urlFound == nil {
-			return c.JSON(404, map[string]any{
-				"success": false,
-				"data": map[string]any{
-					"statusCode": 404,
-					"message":    "No url found with the provided aliase",
-				},
-			})
+			return types.ThrowError(404, "No url found with the provided aliase", []string{})
 		}
 
 		ipAddress := c.RealIP()
 		location, err := utils.GetLocation(ipAddress)
 		if err != nil {
-			return c.JSON(500, map[string]any{
-				"success": false,
-				"data": map[string]any{
-					"statusCode": 500,
-					"message":    "Internal server error",
-				},
-			})
+			return types.ThrowError(500, err.Error(), []string{})
 		}
 		deviceType := utils.GetDeviceType(c.Request().UserAgent())
 		_, insertionErr := clickHandler.ClickCollection.InsertOne(c.Request().Context(), bson.M{"aliase": alias, "city": location.City, "country": location.CountryName, "deviceType": deviceType})
 
 		if insertionErr != nil {
-			return c.JSON(500, map[string]any{
-				"success": false,
-				"data": map[string]any{
-					"statusCode": 500,
-					"message":    "Internal server error",
-				},
-			})
+			return types.ThrowError(500, insertionErr.Error(), []string{})
 		}
 		// update the count
 		var url types.Url

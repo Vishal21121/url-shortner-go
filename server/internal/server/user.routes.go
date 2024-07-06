@@ -55,15 +55,12 @@ func (userHandler *UserHandler) RegisterUser(c echo.Context) error {
 	err := c.Bind(&body)
 	if err != nil {
 		fmt.Println("bad data received")
-		return c.JSON(400, map[string]any{"success": false, "data": map[string]any{"statusCode": 400, "message": "Please provide proper fields"}})
+		return types.ThrowError(400, "Please provide proper fields", []string{})
 	}
 
 	if validateErr := c.Validate(body); validateErr != nil {
 		errorMessages := validators.UserRegisterValidator(c, validateErr)
-		return c.JSON(422, map[string]any{
-			"message": "Validation failed",
-			"errors":  errorMessages,
-		})
+		return types.ThrowError(422, "Validation failed", errorMessages)
 	}
 
 	// searching for the user with the provided email id in the database
@@ -71,20 +68,20 @@ func (userHandler *UserHandler) RegisterUser(c echo.Context) error {
 	userHandler.UserCollection.FindOne(c.Request().Context(), bson.M{"email": body.Email}).Decode(&foundUser)
 
 	if foundUser != nil {
-		return c.JSON(409, map[string]any{"success": false, "data": map[string]any{"statusCode": 409, "message": "Please provide another email id"}})
+		return types.ThrowError(409, "Please provide another email id", []string{})
 	}
 
 	userHandler.UserCollection.FindOne(c.Request().Context(), bson.M{"username": body.Username}).Decode(&foundUser)
 
 	if foundUser != nil {
-		return c.JSON(409, map[string]any{"success": false, "data": map[string]any{"statusCode": 409, "message": "Please provide another username"}})
+		return types.ThrowError(409, "Please provide another username", []string{})
 	}
 
 	// generating the hashed password
 	hashedPassword, hashErr := utils.HashPassword(body.Password)
 	if hashErr != nil {
 		fmt.Println("hash error")
-		return c.JSON(500, map[string]any{"success": false, "data": map[string]any{"statusCode": 500, "message": "Internal server error"}})
+		return types.ThrowError(500, hashErr.Error(), []string{})
 	}
 
 	// inserting the user in the database
@@ -92,7 +89,7 @@ func (userHandler *UserHandler) RegisterUser(c echo.Context) error {
 
 	if insertionErr != nil {
 		fmt.Println("insertion issue")
-		return c.JSON(500, map[string]any{"success": false, "data": map[string]any{"statusCode": 500, "message": "Internal server error"}})
+		return types.ThrowError(500, insertionErr.Error(), []string{})
 	}
 
 	// checking whether user is successfully created in the database
@@ -101,7 +98,7 @@ func (userHandler *UserHandler) RegisterUser(c echo.Context) error {
 
 	if insertedUser == nil {
 		fmt.Println("after insertion")
-		return c.JSON(500, map[string]any{"success": false, "data": map[string]any{"statusCode": 500, "message": "Internal server error"}})
+		return types.ThrowError(500, "Internal server error", []string{})
 	}
 
 	delete(insertedUser, "password")
