@@ -28,21 +28,18 @@ func (userHandler *UserHandler) LoginUser(c echo.Context) error {
 	}
 	if validateErr := c.Validate(body); validateErr != nil {
 		errorMessages := validators.UserLoginValidator(c, validateErr)
-		return c.JSON(422, map[string]any{
-			"message": "Validation failed",
-			"errors":  errorMessages,
-		})
+		return types.ThrowError(422, "Validation failed", errorMessages)
 	}
 
 	var foundUser map[string]any
 	userHandler.UserCollection.FindOne(c.Request().Context(), map[string]interface{}{"email": body.Email}).Decode(&foundUser)
 
 	if foundUser == nil {
-		return c.JSON(401, map[string]any{"success": false, "data": map[string]any{"statusCode": 401, "message": "Please provide correct credentials"}})
+		return types.ThrowError(401, "Please provide correct credentials", []string{})
 	}
 	isValid, _ := utils.CheckPassword(foundUser["password"], body.Password)
 	if !isValid {
-		return c.JSON(401, map[string]any{"success": false, "data": map[string]any{"statusCode": 401, "message": "Please provide correct credentials"}})
+		return types.ThrowError(401, "Please provide correct credentials", []string{})
 	}
 
 	var updatedUser bson.M

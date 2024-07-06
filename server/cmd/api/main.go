@@ -39,6 +39,8 @@ func main() {
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.HTTPErrorHandler = utils.CustomErrorHandler
+
 	e.Validator = &validators.CustomValidator{Validator: validator.New()}
 
 	e.GET("/api/v1/health", func(c echo.Context) error {
@@ -53,6 +55,7 @@ func main() {
 	})
 
 	e.GET("/:alias", func(c echo.Context) error {
+
 		alias := c.Param("alias")
 		fmt.Println(alias)
 
